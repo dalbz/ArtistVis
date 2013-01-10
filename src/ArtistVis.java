@@ -15,7 +15,17 @@ public class ArtistVis {
      */
     public static void main(String[] args) {
 
-        System.out.println(getSimilarArtists("Animal Collective"));
+        ArrayList<String> similar = getSimilarArtists("Animal Collective");
+        for (String artist : similar) {
+            System.out.println(artist);
+            try {
+                Thread.sleep(210);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            System.out.println(getTags(artist));
+        }
     }
 
     private static String getHttpRequest(String urlText) {
@@ -65,6 +75,35 @@ public class ArtistVis {
         }
 
         return similarArtists;
+
+    }
+
+    private static ArrayList<String> getTags(String artistName) {
+
+        artistName = artistName.replace(" ", "+");
+
+        ArrayList<String> tagList = new ArrayList<String>();
+
+        String response = getHttpRequest("http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist="
+                + artistName
+                + "&api_key=56b26f4bbdd972b4460ca2ab0b53e63a&format=json");
+
+        JsonParser parser = new JsonParser();
+
+        JsonObject root = parser.parse(response).getAsJsonObject();
+
+        JsonArray tags = root.getAsJsonObject("toptags").getAsJsonArray("tag");
+
+        if (tags == null) {
+            return tagList;
+        }
+
+        for (int i = 0; i < tags.size(); i++) {
+            JsonObject tag = tags.get(i).getAsJsonObject();
+            tagList.add(tag.get("name").getAsString().toLowerCase());
+        }
+
+        return tagList;
 
     }
 
