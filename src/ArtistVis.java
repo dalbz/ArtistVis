@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 public class ArtistVis {
 
@@ -21,7 +24,10 @@ public class ArtistVis {
      */
     public static void main(String[] args) {
 
-        generateArtistList();
+        // generateArtistList();
+
+        System.out.println(parseArtistList());
+        System.out.println(parseArtistList().size());
 
     }
 
@@ -54,6 +60,33 @@ public class ArtistVis {
             e.printStackTrace();
         }
 
+
+    }
+
+    private static ArrayList<String> parseArtistList() {
+
+        File artistList = new File("artists.txt");
+        BufferedReader reader;
+        ArrayList<String> output = new ArrayList<String>();
+
+        try {
+
+            reader = new BufferedReader(new FileReader(artistList));
+
+            String listText = reader.readLine();
+
+            Gson gson = new Gson();
+
+            Type collectionType = new TypeToken<ArrayList<String>>(){}.getType();
+            output = gson.fromJson(listText, collectionType);
+
+            reader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return output;
 
     }
 
