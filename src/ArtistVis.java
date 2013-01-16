@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import pca_transform.PCA;
+import Jama.Matrix;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -41,6 +44,15 @@ public class ArtistVis {
 
         double[][] artistTagMatrix = createTagMatrix(artistToTagMap,
                 tagDictionary);
+
+        Matrix tagData = new Matrix(artistTagMatrix);
+        PCA pca = new PCA(tagData);
+        Matrix transformedData = pca.transform(tagData,
+                PCA.TransformationType.ROTATION);
+
+        System.out.println(transformedData.getRowDimension());
+        System.out.println(transformedData.getColumnDimension());
+
     }
 
     private static double[][] createTagMatrix(
