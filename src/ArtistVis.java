@@ -30,8 +30,14 @@ public class ArtistVis {
         // generateTagData(parseArtistList());
 
         HashMap<String, ArrayList<String>> artistToTagMap = parseArtistTagData();
+
         System.out.println(artistToTagMap);
         System.out.println(artistToTagMap.keySet().size());
+
+        HashMap<String, Integer> tagDictionary = getTagDictionary(artistToTagMap);
+
+        System.out.println(tagDictionary);
+        System.out.println(tagDictionary.size());
 
     }
 
@@ -91,10 +97,25 @@ public class ArtistVis {
         return output;
     }
 
-    private HashMap<String, Integer> getTagDictionary(
+    private static HashMap<String, Integer> getTagDictionary(
             HashMap<String, ArrayList<String>> tagData) {
 
         HashMap<String, Integer> output = new HashMap<String, Integer>();
+
+        int i = 0;
+
+        for (String artist : tagData.keySet()) {
+
+            ArrayList<String> tagList = tagData.get(artist);
+
+            for (String tag : tagList) {
+                if (!output.containsKey(tag)) {
+                    output.put(tag, i);
+                    i++;
+                }
+            }
+
+        }
 
         return output;
     }
