@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import com.google.gson.Gson;
@@ -26,12 +27,79 @@ public class ArtistVis {
 
         // generateArtistList();
 
-        System.out.println(parseArtistList());
-        System.out.println(parseArtistList().size());
+        // generateTagData(parseArtistList());
+
+        HashMap<String, ArrayList<String>> artistToTagMap = parseArtistTagData();
+        System.out.println(artistToTagMap);
+        System.out.println(artistToTagMap.keySet().size());
 
     }
 
-    private static void generateArtistList(){
+    private static HashMap<String, ArrayList<String>> parseArtistTagData() {
+
+        HashMap<String, ArrayList<String>> output = new HashMap<String, ArrayList<String>>();
+
+        File tagFolder = new File("tagData");
+        File[] listOfFiles = tagFolder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+
+            File file = listOfFiles[i];
+
+            if (file.isFile()) {
+                if (file.getName().endsWith(".txt")) {
+                    String artistName = file.getName().replace(".txt", "");
+
+                    try {
+
+                        BufferedReader reader = new BufferedReader(
+                                new FileReader(file));
+
+                        String listText = reader.readLine();
+
+                        Gson gson = new Gson();
+
+                        Type collectionType = new TypeToken<ArrayList<String>>() {
+                        }.getType();
+                        ArrayList<String> taglist = gson.fromJson(listText,
+                                collectionType);
+
+                        ArrayList<String> truncatedList = new ArrayList<String>();
+
+                        if (taglist != null) {
+                            if (taglist.size() > 10) {
+                                truncatedList = new ArrayList<String>(
+                                        taglist.subList(0, 9));
+                            } else {
+                                truncatedList = taglist;
+                            }
+
+                            output.put(artistName, truncatedList);
+                        }
+
+
+                        reader.close();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+
+        return output;
+    }
+
+    private HashMap<String, Integer> getTagDictionary(
+            HashMap<String, ArrayList<String>> tagData) {
+
+        HashMap<String, Integer> output = new HashMap<String, Integer>();
+
+        return output;
+    }
+
+    private static void generateArtistList() {
 
         File artistList = new File("artists.txt");
         BufferedWriter writer;
@@ -60,7 +128,6 @@ public class ArtistVis {
             e.printStackTrace();
         }
 
-
     }
 
     private static ArrayList<String> parseArtistList() {
@@ -77,7 +144,8 @@ public class ArtistVis {
 
             Gson gson = new Gson();
 
-            Type collectionType = new TypeToken<ArrayList<String>>(){}.getType();
+            Type collectionType = new TypeToken<ArrayList<String>>() {
+            }.getType();
             output = gson.fromJson(listText, collectionType);
 
             reader.close();
@@ -88,6 +156,38 @@ public class ArtistVis {
 
         return output;
 
+    }
+
+    private static void generateTagData(ArrayList<String> artists) {
+        for (String artist : artists) {
+            saveTagData(artist);
+        }
+    }
+
+    private static void saveTagData(String artistName) {
+
+        File artistTags = new File("tagData/" + sanitizeAscii(artistName)
+                + ".txt");
+
+        if (!artistTags.exists()) {
+
+
+            BufferedWriter writer;
+
+            try {
+
+                writer = new BufferedWriter(new FileWriter(artistTags));
+
+                Gson gson = new Gson();
+
+                writer.write(gson.toJson(getTags(artistName)));
+
+                writer.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static String getHttpRequest(String urlText) {
@@ -154,8 +254,8 @@ public class ArtistVis {
 
         JsonObject root = parser.parse(response).getAsJsonObject();
 
-        JsonArray artists = root.getAsJsonObject("topartists")
-                .getAsJsonArray("artist");
+        JsonArray artists = root.getAsJsonObject("topartists").getAsJsonArray(
+                "artist");
 
         for (int i = 0; i < artists.size(); i++) {
             JsonObject artist = artists.get(i).getAsJsonObject();
@@ -202,6 +302,19 @@ public class ArtistVis {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    private static String sanitizeAscii(String input) {
+
+        for (int i = 0; i < input.length(); i++) {
+
+            int c = input.charAt(i);
+            if (c > 0x7F || (c >= 58 && c <= 64)) {
+                input.replace(input.charAt(i), '_');
+            }
+        }
+
+        return input;
     }
 
 }
