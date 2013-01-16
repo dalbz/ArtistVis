@@ -39,6 +39,30 @@ public class ArtistVis {
         System.out.println(tagDictionary);
         System.out.println(tagDictionary.size());
 
+        double[][] artistTagMatrix = createTagMatrix(artistToTagMap,
+                tagDictionary);
+    }
+
+    private static double[][] createTagMatrix(
+            HashMap<String, ArrayList<String>> artistToTagMap,
+            HashMap<String, Integer> tagDictionary) {
+
+        double[][] output = new double[artistToTagMap.keySet().size()][tagDictionary
+                .keySet().size()];
+
+        int i = 0;
+
+        for (String artist : artistToTagMap.keySet()) {
+
+            for (String tag : artistToTagMap.get(artist)) {
+                output[i][tagDictionary.get(tag)] = 1;
+            }
+
+            i++;
+        }
+
+        return output;
+
     }
 
     private static HashMap<String, ArrayList<String>> parseArtistTagData() {
