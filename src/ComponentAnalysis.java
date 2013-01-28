@@ -6,9 +6,9 @@ public class ComponentAnalysis {
 
     private double[][] mComponents;
 
-    private final double ETA = 0.000001;
+    private final double ETA = 0.0001;
 
-    private final int MAX_ITERATIONS = 1000;
+    private final int MAX_ITERATIONS = 2000;
 
     public ComponentAnalysis(double[][] data) {
         mData = centerData(data);
@@ -48,32 +48,40 @@ public class ComponentAnalysis {
 
         for (int j = 0; j < weights.length; j++) {
             for (int i = 0; i < weights[0].length; i++) {
-                weights[j][i] = random.nextFloat() * 2 - 1.0;
+                weights[j][i] = random.nextFloat();
             }
         }
+
+        double[] y = new double[numComponents];
 
         for (int n = 0; n < MAX_ITERATIONS; n++) {
             for (double[] input : mData) {
 
-                // i is the neuron index
-                for (int i = 0; i < weights.length; i++) {
+                for(int j = 0; j < input.length; j++){
+                    y[0] += weights[0][j]*input[j];
+                }
 
-                    // j is the index of the input vector
-                    for (int j = 0; j < weights.length; j++) {
-
-                        double y = 0.02340234234;
-
-                        double x = 92234324;
-
-                        weights[i][j] += ETA * y * x;
-
-                    }
-
+                for(int j = 0; j < input.length; j++){
+                    weights[0][j] += ETA * y[0]
+                            * (input[j] - y[0] * weights[0][j]);
                 }
             }
+
+            if (n % 100 == 0) {
+                System.out.println(n);
+            }
+
         }
 
+        for (int j = 0; j < 5; j++) {
+            System.out.print(weights[0][j] + " ");
+        }
+
+        System.out.println();
+
+
         mComponents = weights;
+
     }
 
     public double[][] getCalculatedComponents() {

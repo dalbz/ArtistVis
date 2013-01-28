@@ -44,7 +44,7 @@ public class ArtistVis {
 
         ComponentAnalysis pca = new ComponentAnalysis(artistTagMatrix);
 
-        pca.extractComponents(2);
+        pca.extractComponents(1);
 
         double[][] transformedData = pca.getTransformedData();
 
