@@ -1,5 +1,7 @@
 import java.util.Random;
 
+import Jama.Matrix;
+
 public class ComponentAnalysis {
 
     private final double[][] mData;
@@ -124,7 +126,23 @@ public class ComponentAnalysis {
     }
 
     public double[][] getTransformedData() {
-        return new double[1][1];
+        double[][] output = new double[mData.length][mComponents.length];
+
+        Matrix components = new Matrix(mComponents);
+
+        for (int i = 0; i < mData.length; i++) {
+
+            double[][] row = new double[1][mData[0].length];
+            row[0] = mData[i];
+            Matrix input = new Matrix(row);
+
+            Matrix transformed = input.times(components.transpose());
+
+            output[i] = transformed.getRowPackedCopy();
+
+        }
+
+        return output;
     }
 
 }

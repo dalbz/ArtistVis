@@ -39,14 +39,26 @@ public class ArtistVis {
         System.out.println(tagDictionary);
         System.out.println(tagDictionary.size());
 
+        ArrayList<String> orderedArtistList = new ArrayList<String>();
+
         double[][] artistTagMatrix = createTagMatrix(artistToTagMap,
-                tagDictionary);
+                tagDictionary, orderedArtistList);
 
         ComponentAnalysis pca = new ComponentAnalysis(artistTagMatrix);
 
         pca.extractComponents(2);
 
         double[][] transformedData = pca.getTransformedData();
+
+        for (int i = 0; i < 50; i++) {
+            for (int j = 0; j < 2; j++) {
+                System.out.print(transformedData[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        produceHTMLOutoput(new File("output.txt"), transformedData,
+                artistToTagMap, orderedArtistList);
 
         // Matrix tagData = new Matrix(artistTagMatrix);
         // PCA pca = new PCA(tagData);
@@ -58,9 +70,30 @@ public class ArtistVis {
 
     }
 
+    private static void produceHTMLOutoput(File file, double[][] data,
+            HashMap<String, ArrayList<String>> artistToTagMap,
+            ArrayList<String> artistList) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+
+            int i = 0;
+            for (String artist : artistList) {
+                writer.write("<div class=\"artist\" style=\"top:" + data[i][1]
+                        * 50000 + "px; left:" + data[i][0] * 100000 + "px;\">");
+                writer.write("<h2>" + artist + "</h2>");
+                writer.write("<p>" + artistToTagMap.get(artist) + "</p></div>");
+                i++;
+            }
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static double[][] createTagMatrix(
             HashMap<String, ArrayList<String>> artistToTagMap,
-            HashMap<String, Integer> tagDictionary) {
+            HashMap<String, Integer> tagDictionary, ArrayList<String> artistList) {
 
         double[][] output = new double[artistToTagMap.keySet().size()][tagDictionary
                 .keySet().size()];
@@ -68,6 +101,8 @@ public class ArtistVis {
         int i = 0;
 
         for (String artist : artistToTagMap.keySet()) {
+
+            artistList.add(artist);
 
             for (String tag : artistToTagMap.get(artist)) {
                 output[i][tagDictionary.get(tag)] = 1;
