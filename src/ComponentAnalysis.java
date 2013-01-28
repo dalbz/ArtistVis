@@ -4,11 +4,13 @@ public class ComponentAnalysis {
 
     private final double[][] mData;
 
+    private double[] mMeans;
+
     private double[][] mComponents;
 
     private final double ETA = 0.0001;
 
-    private final int MAX_ITERATIONS = 2000;
+    private final int MAX_ITERATIONS = 3000;
 
     public ComponentAnalysis(double[][] data) {
         mData = centerData(data);
@@ -28,6 +30,8 @@ public class ComponentAnalysis {
             means[i] /= data.length;
         }
 
+        mMeans = means;
+
         double[][] adjustedData = new double[data.length][data[0].length];
 
         for (int j = 0; j < data.length; j++) {
@@ -44,7 +48,7 @@ public class ComponentAnalysis {
 
         double[][] weights = new double[numComponents][mData[0].length];
 
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
 
         for (int j = 0; j < weights.length; j++) {
             for (int i = 0; i < weights[0].length; i++) {
@@ -52,29 +56,60 @@ public class ComponentAnalysis {
             }
         }
 
+        for (int i = 0; i < numComponents; i++) {
+            for (int j = 0; j < 5; j++) {
+                System.out.print(weights[i][j] + " ");
+            }
+            System.out.println();
+        }
+
         double[] y = new double[numComponents];
 
         for (int n = 0; n < MAX_ITERATIONS; n++) {
+
             for (double[] input : mData) {
 
-                for(int j = 0; j < input.length; j++){
-                    y[0] += weights[0][j]*input[j];
+                for (int i = 0; i < numComponents; i++) {
+                    for (int j = 0; j < input.length; j++) {
+                        y[i] += weights[i][j] * input[j];
+                    }
                 }
 
-                for(int j = 0; j < input.length; j++){
-                    weights[0][j] += ETA * y[0]
-                            * (input[j] - y[0] * weights[0][j]);
+                for (int i = 0; i < numComponents; i++) {
+                    for (int j = 0; j < input.length; j++) {
+
+                        double inhibitSum = 0;
+
+                        for (int k = 0; k <= i; k++) {
+                            inhibitSum += y[k] * weights[k][j];
+                        }
+
+                        weights[i][j] += ETA * y[i] * (input[j] - inhibitSum);
+                    }
                 }
             }
 
+
             if (n % 100 == 0) {
                 System.out.println(n);
+
+                for (int i = 0; i < numComponents; i++) {
+                    for (int j = 0; j < 5; j++) {
+                        System.out.print(weights[i][j] + " ");
+                    }
+                    System.out.println();
+                }
             }
 
         }
 
-        for (int j = 0; j < 5; j++) {
-            System.out.print(weights[0][j] + " ");
+        System.out.println();
+
+        for (int i = 0; i < numComponents; i++) {
+            for (int j = 0; j < 5; j++) {
+                System.out.print(weights[i][j] + " ");
+            }
+            System.out.println();
         }
 
         System.out.println();
