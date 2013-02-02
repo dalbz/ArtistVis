@@ -50,6 +50,7 @@ table {
 body {
 	background:#111;
 	color:#eee;
+    font-family: 'Droid Sans', sans-serif;  
 }
 
 #header {
@@ -70,21 +71,36 @@ body {
 	background:#333;
 	width:1000px;
 	margin:0 auto;
-	height:2000px;
+	height:1000px;
 	margin-bottom:1em;
 }
 
 .artist {
-	position:relative;
-	width:10px;
-	height:10px;
+	position:absolute;
+	width:6px;
+	height:6px;
 	cursor:pointer;
 	background:#ddd;
+    border:#aaaaff solid 2px;
+}
+
+.artist:hover {   
+    background:#000;
 }
 
 .artist h2 {
 	display:none;
 	visibility:hidden;
+
+    background:rgba(0, 0, 0, 0.75); 
+    font-size: 1.4em;
+    font-family: 'Droid Sans', sans-serif;  
+    font-weight: bolder;
+    color:#eee;
+
+    padding:5px;
+
+    z-index:0;
 }
 
 .artist:hover h2 {
@@ -94,12 +110,17 @@ body {
 	position:relative;
 	top:20px;
 	left:-20px;
-	width:50px;
+	width:150px;
+    z-index:99999;
 }
 
 .artist p {
 	display:none;
 	visibility:hidden;
+
+    background:rgba(0, 0, 0, 0.75); 
+    color:#eee;
+    padding:5px;
 }
 
 .artist:hover p {
@@ -112,4 +133,5 @@ body {
 	width:100%;
 	
 	text-align:center;
+    z-index:999999;
 }

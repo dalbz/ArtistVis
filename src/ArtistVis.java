@@ -44,10 +44,14 @@ public class ArtistVis {
         double[][] artistTagMatrix = createTagMatrix(artistToTagMap,
                 tagDictionary, orderedArtistList);
 
+        /**
+         * DimensionReduce2D dimReduce = new DimensionReduce2D(artistTagMatrix);
+         *
+         * double[][] transformedData = dimReduce.get2DData();
+         **/
+
         ComponentAnalysis pca = new ComponentAnalysis(artistTagMatrix);
-
         pca.extractComponents(2);
-
         double[][] transformedData = pca.getTransformedData();
 
         for (int i = 0; i < 50; i++) {
@@ -57,7 +61,7 @@ public class ArtistVis {
             System.out.println();
         }
 
-        produceHTMLOutoput(new File("output.txt"), transformedData,
+        produceHTMLOutoput(new File("web/index.html"), transformedData,
                 artistToTagMap, orderedArtistList);
 
         // Matrix tagData = new Matrix(artistTagMatrix);
@@ -76,14 +80,67 @@ public class ArtistVis {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 
+            BufferedReader reader = new BufferedReader(new FileReader(new File(
+                    "web/prefix.html")));
+
+            String line = "";
+
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+            }
+
+            reader.close();
+
+            double maxX = 0;
+            double minX = 0;
+            double maxY = 0;
+            double minY = 0;
+
+            for (double[] row : data) {
+                if (row[0] > maxX) {
+                    maxX = row[0];
+                }
+                if (row[1] > maxY) {
+                    maxY = row[1];
+                }
+                if (row[0] < minX) {
+                    minX = row[0];
+                }
+                if (row[1] < minY) {
+                    minY = row[1];
+                }
+
+            }
+
             int i = 0;
             for (String artist : artistList) {
-                writer.write("<div class=\"artist\" style=\"top:" + data[i][1]
-                        * 50000 + "px; left:" + data[i][0] * 100000 + "px;\">");
+
+                /*
+                 * writer.write("<div class=\"artist\" style=\"top:" +
+                 * (data[i][1] * 500 + 500) + "px; left:" + (data[i][0] * 500 +
+                 * 500) + "px;\">");
+                 */
+
+                writer.write("<div class=\"artist\" style=\"top:"
+                        + (25 + 120 * (data[i][1] - minY) / (maxY - minY))
+                        + "%; left:"
+                        + (5 + 75 * (data[i][0] - minX) / (maxX - minX))
+                        + "%;\">");
+
                 writer.write("<h2>" + artist + "</h2>");
-                writer.write("<p>" + artistToTagMap.get(artist) + "</p></div>");
+                writer.write("<p>" + artistToTagMap.get(artist)
+                        + "</p></div>\n");
                 i++;
             }
+
+            reader = new BufferedReader(new FileReader(new File(
+                    "web/suffix.html")));
+
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+            }
+
+            reader.close();
 
             writer.close();
         } catch (IOException e) {
@@ -156,7 +213,6 @@ public class ArtistVis {
 
                             output.put(artistName, truncatedList);
                         }
-
 
                         reader.close();
 
@@ -265,7 +321,6 @@ public class ArtistVis {
                 + ".txt");
 
         if (!artistTags.exists()) {
-
 
             BufferedWriter writer;
 
